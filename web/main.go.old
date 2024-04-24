@@ -1,0 +1,61 @@
+package main
+
+import (
+	"errors"
+	"fmt"
+	"log"
+	"net/http"
+)
+
+const portNumber = "8080"
+
+func Home(w http.ResponseWriter, r *http.Request) {
+	_, err := fmt.Fprint(w, "Home Page!")
+
+	if err != nil {
+		log.Println("ERROR occurred:", err)
+	}
+
+	log.Println("Successfully handled /")
+}
+
+func About(w http.ResponseWriter, r *http.Request) {
+	_, err := fmt.Fprint(w, "About Page!")
+
+	if err != nil {
+		log.Println("ERROR occurred:", err)
+	}
+
+	log.Println("Successfully handled /about")
+}
+
+func Divide(w http.ResponseWriter, r *http.Request) {
+	x, y := 100.0, 10.0
+	d, err := divideValues(x, y)
+
+	if err != nil {
+		fmt.Fprintf(w, fmt.Sprintf("ERROR: %s", err))
+	} else {
+		fmt.Fprintf(w, fmt.Sprintf("%f divided by %f is %f", x, y, d))
+	}
+
+	log.Println("Successfully handled /divide")
+}
+
+func divideValues(x, y float64) (float64, error) {
+	if y == 0 {
+		err := errors.New("Division by zero is not possible")
+		return 0, err
+	}
+
+	return x / y, nil
+}
+
+func main() {
+	http.HandleFunc("/", Home)
+	http.HandleFunc("/about", About)
+	http.HandleFunc("/divide", Divide)
+
+	log.Println("Listing to port: " + portNumber)
+	_ = http.ListenAndServe(":"+portNumber, nil)
+}
