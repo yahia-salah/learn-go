@@ -10,15 +10,6 @@ import (
 )
 
 func routes(app *config.AppConfig) http.Handler {
-	// This was using PAT
-	// mux := pat.New()
-
-	// mux.Get("/", http.HandlerFunc(handlers.Repo.Home))
-	// mux.Get("/about", http.HandlerFunc(handlers.Repo.About))
-
-	// return mux
-
-	// This is using CHI
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
@@ -28,6 +19,9 @@ func routes(app *config.AppConfig) http.Handler {
 
 	mux.Get("/", http.HandlerFunc(handlers.Repo.Home))
 	mux.Get("/about", http.HandlerFunc(handlers.Repo.About))
+
+	fileServer := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
 }
