@@ -11,7 +11,7 @@ import (
 func WriteToConsole(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Hit the page")
+		log.Println("Hit the page:", r.RequestURI)
 		next.ServeHTTP(w, r)
 	})
 }
