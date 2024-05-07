@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/yahia-salah/learn-go/pkg/config"
-	"github.com/yahia-salah/learn-go/pkg/models"
-	"github.com/yahia-salah/learn-go/pkg/render"
+	"github.com/yahia-salah/learn-go/internal/config"
+	"github.com/yahia-salah/learn-go/internal/models"
+	"github.com/yahia-salah/learn-go/internal/render"
 )
 
 // The repository used by the handlers
@@ -36,7 +39,7 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Home"
 
-	render.RenderTemplate(w, "home.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }
@@ -50,7 +53,7 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	stringMap["test"] = "Hello, again!"
 	stringMap["remote_ip"] = remoteIP
 
-	render.RenderTemplate(w, "about.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "about.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }
@@ -60,7 +63,7 @@ func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Major's Suite"
 
-	render.RenderTemplate(w, "majors.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "majors.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }
@@ -70,7 +73,7 @@ func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Generals's Quarters"
 
-	render.RenderTemplate(w, "generals.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "generals.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }
@@ -80,19 +83,48 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Contact"
 
-	render.RenderTemplate(w, "contact.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }
 
-// The Reservation page handler
-func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+// The Search Availability page handler
+func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Search for Availability"
 
-	render.RenderTemplate(w, "reservation.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "search-availability.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
+}
+
+// The PostAvailability handler
+func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
+	start := r.Form.Get("start")
+	end := r.Form.Get("end")
+
+	w.Write([]byte(fmt.Sprintf("start date is %s and end date is %s", start, end)))
+}
+
+type jsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
+}
+
+// The Availability JSON handler
+func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	start := r.Form.Get("start")
+	end := r.Form.Get("end")
+	resp := jsonResponse{OK: true, Message: fmt.Sprintf("There are rooms available from %s to %s", start, end)}
+
+	out, err := json.MarshalIndent(resp, "", "\t")
+
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(out))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }
 
 // The Make Reservation page handler
@@ -100,7 +132,7 @@ func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Make Reservation"
 
-	render.RenderTemplate(w, "make-reservation.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
 }

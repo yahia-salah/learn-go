@@ -1,0 +1,21 @@
+.notie-container {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+  font-size: 1.4rem;
+}
+
+.my-footer {
+  height: auto;
+  background-color: #403d3d;
+  margin-top: 1.5em;
+  padding: 1em;
+  color: #ffffff;
+  font-size: 80%;
+}
+
+.datepicker {
+  z-index: 10000;
+}
+
+.room-image {
+  max-width: 50%;
+}

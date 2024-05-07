@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/yahia-salah/learn-go/pkg/config"
-	"github.com/yahia-salah/learn-go/pkg/models"
+	"github.com/justinas/nosurf"
+	"github.com/yahia-salah/learn-go/internal/config"
+	"github.com/yahia-salah/learn-go/internal/models"
 )
 
 var app *config.AppConfig
@@ -19,13 +20,13 @@ func NewTemplates(a *config.AppConfig) {
 }
 
 // Adds default data on all pages
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
-
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.CSRFToken = nosurf.Token(r)
 	return td
 }
 
 // Renders the template
-func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	// get the template cache from the app config
 	var tc map[string]*template.Template
 	var err error
@@ -47,7 +48,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData)
 	}
 
 	buf := new(bytes.Buffer)
-	td = AddDefaultData(td)
+	td = AddDefaultData(td, r)
 	err = t.Execute(buf, td)
 	if err != nil {
 		log.Println(err)
@@ -64,13 +65,13 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData)
 func CreateTemplateCache() (map[string]*template.Template, error) {
 	myCache := map[string]*template.Template{}
 
-	// get all the files named *.page.html from ./templates folder
-	pages, err := filepath.Glob("./templates/*.page.html")
+	// get all the files named *.page.tmpl from ./templates folder
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
 	if err != nil {
 		return myCache, err
 	}
 
-	// range through all files ending with *.page.html
+	// range through all files ending with *.page.tmpl
 	for _, page := range pages {
 		name := filepath.Base(page)
 		ts, err := template.New(name).ParseFiles(page)

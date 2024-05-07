@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/yahia-salah/learn-go/pkg/config"
-	"github.com/yahia-salah/learn-go/pkg/handlers"
-	"github.com/yahia-salah/learn-go/pkg/render"
+	"github.com/yahia-salah/learn-go/internal/config"
+	"github.com/yahia-salah/learn-go/internal/handlers"
+	"github.com/yahia-salah/learn-go/internal/render"
 )
 
 const portNumber = ":8080"
