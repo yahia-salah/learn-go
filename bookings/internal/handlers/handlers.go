@@ -130,12 +130,17 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 // The Make Reservation page handler
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	var emptyReservation models.Reservation
+	data := make(map[string]interface{})
+	data["reservation"] = emptyReservation
+
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Make Reservation"
 
 	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 		Form:      forms.New(nil),
+		Data:      data,
 	})
 }
 
@@ -152,10 +157,11 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 
-	form.Has("firstName", r)
-	form.Has("lastName", r)
-	form.Has("email", r)
-	form.Has("phone", r)
+	form.Required("firstName", "lastName", "email", "phone")
+	form.MinLength("firstName", 5, r)
+	form.MinLength("lastName", 5, r)
+	form.IsPhone("phone")
+	form.IsEmail("email")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -172,4 +178,31 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	// show reservation summary
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
+}
+
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		log.Println("Can't cast reservation object from session")
+		m.App.Session.Put(r.Context(), "error", "Can't cast reservation object from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	}
+
+	defer m.App.Session.Remove(r.Context(), "reservation")
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	stringMap := make(map[string]string)
+	stringMap["title"] = "Reservation Summary"
+
+	render.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+		StringMap: stringMap,
+		Data:      data,
+	})
 }

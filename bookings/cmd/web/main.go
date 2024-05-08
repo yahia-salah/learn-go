@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"log"
 	"net/http"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/yahia-salah/learn-go/internal/config"
 	"github.com/yahia-salah/learn-go/internal/handlers"
+	"github.com/yahia-salah/learn-go/internal/models"
 	"github.com/yahia-salah/learn-go/internal/render"
 )
 
@@ -19,6 +21,9 @@ var session *scs.SessionManager
 
 func main() {
 	log.Println("Starting server on port " + portNumber)
+
+	// what am I going to put in the session
+	gob.Register(models.Reservation{})
 
 	app.InProduction = inPROD
 

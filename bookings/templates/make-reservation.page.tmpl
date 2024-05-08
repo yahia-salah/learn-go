@@ -4,6 +4,7 @@
     <div class="col-3"></div>
     <div class="col-md-6">
       <h1 class="mt-4">Make Reservation</h1>
+      {{$res:=index .Data "reservation"}}
       <form action="/make-reservation" method="post" class="" novalidate>
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div class="mb-3">
@@ -15,6 +16,7 @@
             id="firstName"
             required
             autocomplete="off"
+            value="{{$res.FirstName}}"
           />
           {{with .Form.Errors.Get "firstName"}}
           <span class="text-danger">{{.}}</span>
@@ -29,6 +31,7 @@
             id="lastName"
             required
             autocomplete="off"
+            value="{{$res.LastName}}"
           />
           {{with .Form.Errors.Get "lastName"}}
           <span class="text-danger">{{.}}</span>
@@ -43,6 +46,7 @@
             id="email"
             required
             autocomplete="off"
+            value="{{$res.Email}}"
           />
           {{with .Form.Errors.Get "email"}}
           <span class="text-danger">{{.}}</span>
@@ -57,6 +61,7 @@
             id="phone"
             required
             autocomplete="off"
+            value="{{$res.Phone}}"
           />
           {{with .Form.Errors.Get "phone"}}
           <span class="text-danger">{{.}}</span>

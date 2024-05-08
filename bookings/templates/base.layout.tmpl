@@ -187,6 +187,19 @@
         });
       }
 
+      // Read session default data if there are any flash, error, warning
+      {{with .Error}}
+      notify("{{.}}","error")
+      {{end}}
+
+      {{with .Warning}}
+      notify("{{.}}","warning")
+      {{end}}
+
+      {{with .Flash}}
+      notify("{{.}}","info")
+      {{end}}
+
       function Prompt() {
         let toast = function (c) {
           const { msg = "", icon = "success", position = "top-end" } = c;
