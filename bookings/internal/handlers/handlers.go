@@ -8,6 +8,7 @@ import (
 
 	"github.com/yahia-salah/learn-go/internal/config"
 	"github.com/yahia-salah/learn-go/internal/forms"
+	"github.com/yahia-salah/learn-go/internal/helpers"
 	"github.com/yahia-salah/learn-go/internal/models"
 	"github.com/yahia-salah/learn-go/internal/render"
 )
@@ -34,9 +35,6 @@ func NewHandlers(r *Repository) {
 
 // The Home page handler
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	remoteIP := r.RemoteAddr
-	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
-
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Home"
 
@@ -47,12 +45,9 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 
 // The About page handler
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip")
-
 	stringMap := make(map[string]string)
 	stringMap["title"] = "About"
 	stringMap["test"] = "Hello, again!"
-	stringMap["remote_ip"] = remoteIP
 
 	render.RenderTemplate(w, r, "about.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
@@ -121,7 +116,8 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	out, err := json.MarshalIndent(resp, "", "\t")
 
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+		return
 	}
 	log.Println(string(out))
 	w.Header().Set("Content-Type", "application/json")
@@ -149,7 +145,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
 		return
 	}
 
@@ -188,7 +184,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		log.Println("Can't cast reservation object from session")
+		m.App.ErrorLog.Println("Can't cast reservation object from session")
 		m.App.Session.Put(r.Context(), "error", "Can't cast reservation object from session")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	}

@@ -4,11 +4,13 @@ import (
 	"encoding/gob"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/yahia-salah/learn-go/internal/config"
 	"github.com/yahia-salah/learn-go/internal/handlers"
+	"github.com/yahia-salah/learn-go/internal/helpers"
 	"github.com/yahia-salah/learn-go/internal/models"
 	"github.com/yahia-salah/learn-go/internal/render"
 )
@@ -18,6 +20,8 @@ const inPROD = false
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func main() {
 	log.Println("Starting server on port " + portNumber)
@@ -40,6 +44,14 @@ func run() error {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = inPROD
+
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
+	helpers.NewHelpers(&app)
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour

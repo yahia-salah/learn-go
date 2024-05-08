@@ -6,3 +6,8 @@ This is the project for my booking and reservations developed in Go Lang
 - Uses the [chi router](https://github.com/go-chi/chi)
 - Uses [alex edwards SCS](https://github.com/alexedwards/scs) session management
 - Uses [nosurf](https://github.com/justinas/nosurf)
+
+PostgreSQL
+
+- Database Superuser: postgres
+- Database Port: 5432
