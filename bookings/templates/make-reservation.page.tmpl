@@ -4,50 +4,63 @@
     <div class="col-3"></div>
     <div class="col-md-6">
       <h1 class="mt-4">Make Reservation</h1>
-      <form action="" method="post" class="needs-validation" novalidate>
+      <form action="/make-reservation" method="post" class="" novalidate>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div class="mb-3">
           <label for="firstName" class="form-label">First Name</label>
           <input
             type="text"
             name="firstName"
-            class="form-control"
+            class="form-control {{with .Form.Errors.Get "firstName"}} is-invalid {{end}}"
             id="firstName"
             required
             autocomplete="off"
           />
+          {{with .Form.Errors.Get "firstName"}}
+          <span class="text-danger">{{.}}</span>
+          {{end}}
         </div>
         <div class="mb-3">
           <label for="lastName" class="form-label">Last Name</label>
           <input
             type="text"
             name="lastName"
-            class="form-control"
+            class="form-control {{with .Form.Errors.Get "lastName"}} is-invalid {{end}}"
             id="lastName"
             required
             autocomplete="off"
           />
+          {{with .Form.Errors.Get "lastName"}}
+          <span class="text-danger">{{.}}</span>
+          {{end}}
         </div>
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
           <input
             type="email"
             name="email"
-            class="form-control"
+            class="form-control {{with .Form.Errors.Get "email"}} is-invalid {{end}}"
             id="email"
             required
             autocomplete="off"
           />
+          {{with .Form.Errors.Get "email"}}
+          <span class="text-danger">{{.}}</span>
+          {{end}}
         </div>
         <div class="mb-3">
           <label for="phone" class="form-label">Phone Number</label>
           <input
             type="text"
             name="phone"
-            class="form-control"
+            class="form-control {{with .Form.Errors.Get "phone"}} is-invalid {{end}}"
             id="phone"
             required
             autocomplete="off"
           />
+          {{with .Form.Errors.Get "phone"}}
+          <span class="text-danger">{{.}}</span>
+          {{end}}
         </div>
         <button type="submit" class="btn btn-primary">
           Make Reservation

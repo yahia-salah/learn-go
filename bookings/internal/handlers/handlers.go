@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/yahia-salah/learn-go/internal/config"
+	"github.com/yahia-salah/learn-go/internal/forms"
 	"github.com/yahia-salah/learn-go/internal/models"
 	"github.com/yahia-salah/learn-go/internal/render"
 )
@@ -128,11 +129,47 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 }
 
 // The Make Reservation page handler
-func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string)
 	stringMap["title"] = "Make Reservation"
 
 	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
+		Form:      forms.New(nil),
 	})
+}
+
+// PostReservation handler for posting the reservation form
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	reservation := models.Reservation{FirstName: r.Form.Get("firstName"), LastName: r.Form.Get("lastName"), Email: r.Form.Get("email"), Phone: r.Form.Get("phone")}
+
+	form := forms.New(r.PostForm)
+
+	form.Has("firstName", r)
+	form.Has("lastName", r)
+	form.Has("email", r)
+	form.Has("phone", r)
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["reservation"] = reservation
+
+		stringMap := make(map[string]string)
+		stringMap["title"] = "Make Reservation"
+
+		render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+			StringMap: stringMap,
+			Form:      form,
+			Data:      data,
+		})
+
+		return
+	}
 }
