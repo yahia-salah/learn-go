@@ -9,6 +9,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/yahia-salah/learn-go/internal/config"
+	"github.com/yahia-salah/learn-go/internal/driver"
 	"github.com/yahia-salah/learn-go/internal/handlers"
 	"github.com/yahia-salah/learn-go/internal/helpers"
 	"github.com/yahia-salah/learn-go/internal/models"
@@ -26,22 +27,34 @@ var errorLog *log.Logger
 func main() {
 	log.Println("Starting server on port " + portNumber)
 
-	err := run()
+	db, err := run()
+
+	if db != nil {
+		defer db.SQL.Close()
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	srv := &http.Server{
 		Addr:    portNumber,
 		Handler: routes(&app),
 	}
 
+	log.Println("Starting server...")
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal("Can't run server:", err)
 	}
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	// what am I going to put in the session
 	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(models.Room{})
+	gob.Register(models.Restriction{})
+	gob.Register(models.RoomRestriction{})
 
 	app.InProduction = inPROD
 
@@ -60,17 +73,26 @@ func run() error {
 	session.Cookie.Secure = app.InProduction
 	app.Session = session
 
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=p@ssw0rd")
+	if err != nil {
+		log.Fatal("Can't connect to database", err)
+		return nil, err
+	}
+
+	log.Println("Creating template cache...")
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("Can't create template cache", err)
-		return err
+		return db, err
 	}
 	app.TemplateCache = tc
 	app.UseCache = false
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 
-	return err
+	return db, err
 }
